@@ -87,6 +87,11 @@ class OpenAIExampleProvider(ExampleProvider):
             raise ExampleProviderError(
                 "Could not reach the OpenAI API. Check your internet connection and try again."
             ) from exc
+        except openai.RateLimitError as exc:
+            message = getattr(exc, "message", str(exc))
+            raise ExampleProviderError(
+                f"OpenAI rate/quota error: {message}"
+            ) from exc
         except openai.APIStatusError as exc:
             raise ExampleProviderError(
                 f"OpenAI API returned an error (status {exc.status_code})."

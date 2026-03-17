@@ -7,3 +7,5 @@ sqlalchemy
 pytest
 python-multipart
 requests
+openai
+pydantic
