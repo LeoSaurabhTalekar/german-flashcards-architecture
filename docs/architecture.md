@@ -121,3 +121,11 @@ This project is a strong architecture showcase because it demonstrates:
 - deployment planning
 - scalability thinking
 - documentation-first development
+
+FastAPI chosen for clean REST API design and automatic documentation
+
+Streamlit chosen for quick UI development
+
+SQLite chosen for simple local persistence in early development
+
+Layered architecture chosen to keep the system modular and maintainable

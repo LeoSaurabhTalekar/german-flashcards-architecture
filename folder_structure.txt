@@ -1,0 +1,43 @@
+german-flashcards-architecture/
+│
+├── app/
+│   ├── api/
+│   │   ├── __init__.py
+│   │   └── routes.py
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   └── exceptions.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   └── flashcard_service.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── flashcard.py
+│   ├── repositories/
+│   │   ├── __init__.py
+│   │   └── flashcard_repository.py
+│   ├── db/
+│   │   ├── __init__.py
+│   │   └── database.py
+│   ├── __init__.py
+│   └── main.py
+│
+├── frontend/
+│   ├── __init__.py
+│   └── streamlit_app.py
+│
+├── data/
+│   └── sample_flashcards.xlsx
+│
+├── tests/
+│   ├── __init__.py
+│   └── test_flashcard_service.py
+│
+├── docs/
+│   └── architecture.md
+│
+├── requirements.txt
+├── Dockerfile
+├── README.md
+└── .gitignore
