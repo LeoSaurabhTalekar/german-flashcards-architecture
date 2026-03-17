@@ -8,6 +8,7 @@ german-flashcards-architecture/
 │   │   ├── __init__.py
 │   │   ├── config.py
 │   │   └── exceptions.py
+│   │   └── load_stats.py
 │   ├── services/
 │   │   ├── __init__.py
 │   │   └── flashcard_service.py
@@ -33,6 +34,7 @@ german-flashcards-architecture/
 ├── tests/
 │   ├── __init__.py
 │   └── test_flashcard_service.py
+│   └── test_flashcard_repository.py
 │
 ├── docs/
 │   └── architecture.md
