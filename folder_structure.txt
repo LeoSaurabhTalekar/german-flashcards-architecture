@@ -15,6 +15,11 @@ german-flashcards-architecture/
 │   ├── models/
 │   │   ├── __init__.py
 │   │   └── flashcard.py
+│   ├── providers/
+│   │   ├── __init__.py
+│   │   ├── example_service.py
+│   │   ├── local_example_provider.py
+│   │   └── base.py
 │   ├── repositories/
 │   │   ├── __init__.py
 │   │   └── flashcard_repository.py

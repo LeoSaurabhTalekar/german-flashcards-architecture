@@ -1,8 +1,17 @@
 import streamlit as st
 
-from app.core.exceptions import FlashcardAppError
+from app.core.exceptions import FlashcardAppError, ExampleProviderError
+from app.providers.local_example_provider import LocalTemplateExampleProvider
+from app.providers.openai_example_provider import OpenAIExampleProvider
 from app.repositories.flashcard_repository import ExcelFlashcardRepository
+from app.services.example_service import ExampleService
 from app.services.flashcard_service import FlashcardService
+
+
+def build_example_service(provider_name: str) -> ExampleService:
+    if provider_name == "OpenAI API":
+        return ExampleService(OpenAIExampleProvider())
+    return ExampleService(LocalTemplateExampleProvider())
 
 
 st.set_page_config(page_title="German Flashcards", layout="centered")
@@ -24,8 +33,8 @@ file_signature = tuple(sorted((file.name, file.size) for file in uploaded_files)
 if st.session_state.get("file_signature") != file_signature:
     try:
         repository = ExcelFlashcardRepository(uploaded_files)
-        service = FlashcardService(repository)
-        load_result = service.load_flashcards()
+        flashcard_service = FlashcardService(repository)
+        load_result = flashcard_service.load_flashcards()
     except FlashcardAppError as exc:
         st.error(str(exc))
         st.stop()
@@ -37,10 +46,19 @@ if st.session_state.get("file_signature") != file_signature:
         load_result.flashcards
     )
     st.session_state.show_answer = False
-    st.session_state.show_example = False
+    st.session_state.show_stored_example = False
+    st.session_state.generated_examples = []
 
 flashcards = st.session_state.flashcards
 stats = st.session_state.load_stats
+card = st.session_state.current_card
+
+provider_name = st.selectbox(
+    "Example generator",
+    options=["Local Template", "OpenAI API"],
+    index=0,
+    help="Use Local Template for offline examples or OpenAI API for fresh AI-generated examples.",
+)
 
 st.success(
     f"Loaded {stats.loaded_flashcards} flashcards from {stats.files_processed} file(s)."
@@ -58,9 +76,9 @@ st.caption(
 if st.button("Next Random Word"):
     st.session_state.current_card = FlashcardService.select_random_flashcard(flashcards)
     st.session_state.show_answer = False
-    st.session_state.show_example = False
-
-card = st.session_state.current_card
+    st.session_state.show_stored_example = False
+    st.session_state.generated_examples = []
+    card = st.session_state.current_card
 
 st.subheader("German Word")
 st.write(card.german)
@@ -68,23 +86,55 @@ st.write(card.german)
 if card.meaning_simple:
     st.caption(f"Meaning hint: {card.meaning_simple}")
 
-button_col1, button_col2 = st.columns(2)
+button_col1, button_col2, button_col3 = st.columns(3)
 
 with button_col1:
     if st.button("Show Answer"):
         st.session_state.show_answer = True
 
 with button_col2:
-    if st.button("Show Example"):
-        st.session_state.show_example = True
+    if st.button("Show Stored Example"):
+        st.session_state.show_stored_example = True
+
+with button_col3:
+    if st.button("Generate 5 New Examples"):
+        try:
+            example_service = build_example_service(provider_name)
+            st.session_state.generated_examples = example_service.get_examples_for_flashcard(
+                card,
+                count=5,
+            )
+        except ExampleProviderError as exc:
+            st.error(str(exc))
+            st.exception(exc)
+            st.session_state.generated_examples = []
 
 if st.session_state.show_answer:
     st.write(f"**English:** {card.english}")
 
-if st.session_state.show_example:
+if st.session_state.show_stored_example:
+    st.markdown("**Stored Example**")
+    has_stored_example = False
+
     if card.german_example:
         st.write(f"**German Example:** {card.german_example}")
+        has_stored_example = True
+
     if card.english_example:
         st.write(f"**English Example:** {card.english_example}")
+        has_stored_example = True
+
+    if not has_stored_example:
+        st.info("No stored example is available for this flashcard.")
+
+generated_examples = st.session_state.get("generated_examples", [])
+
+if generated_examples:
+    st.markdown("**Generated Examples**")
+    st.caption(f"Source: {provider_name}")
+
+    for index, example in enumerate(generated_examples, start=1):
+        st.write(f"{index}. {example.german}")
+        st.caption(example.english)
 
 st.caption(f"Source file: {card.source_file} | Sheet: {card.sheet_name}")
