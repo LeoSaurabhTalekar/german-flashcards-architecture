@@ -1,21 +1,16 @@
-from fastapi import FastAPI
-
-app = FastAPI(
-    title="German Flashcards Architecture Project",
-    version="0.1.0",
-    description="A modular flashcards application to demonstrate software architecture and system design."
-)
+from app.repositories.flashcard_repository import InMemoryFlashcardRepository
+from app.services.flashcard_service import FlashcardService
 
 
-@app.get("/")
-def root():
-    return {
-        "message": "Backend is running",
-        "project": "German Flashcards Architecture Project",
-        "status": "success"
-    }
+def main() -> None:
+    repository = InMemoryFlashcardRepository()
+    service = FlashcardService(repository)
+
+    flashcards = service.list_flashcards()
+
+    print("German Flashcards Architecture - Backend Entry Point")
+    print(f"Loaded {len(flashcards)} flashcards")
 
 
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
+if __name__ == "__main__":
+    main()

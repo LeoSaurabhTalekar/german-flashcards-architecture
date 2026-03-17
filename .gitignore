@@ -1,7 +1,6 @@
-venv/
 __pycache__/
 *.pyc
+.venv/
 .idea/
-.vscode/
-.env
-*.db
+.pytest_cache/
+.streamlit/
