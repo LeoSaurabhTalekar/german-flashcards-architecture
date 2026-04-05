@@ -7,8 +7,8 @@ import streamlit as st
 
 from app.core.exceptions import FlashcardAppError, ExampleProviderError
 from app.providers.local_example_provider import LocalTemplateExampleProvider
-from app.providers.openai_example_provider import OpenAIExampleProvider
-from app.providers.ollama_example_provider import OllamaExampleProvider
+# from app.providers.openai_example_provider import OpenAIExampleProvider
+# from app.providers.ollama_example_provider import OllamaExampleProvider
 from app.repositories.flashcard_repository import ExcelFlashcardRepository
 from app.services.example_service import ExampleService
 from app.services.flashcard_service import FlashcardService
@@ -31,10 +31,10 @@ class InMemoryUploadedExcelFile(BytesIO):
 
 
 def build_example_service(provider_name: str) -> ExampleService:
-    if provider_name == "Ollama Local":
-        return ExampleService(OllamaExampleProvider())
-    if provider_name == "OpenAI API":
-        return ExampleService(OpenAIExampleProvider())
+    # if provider_name == "Ollama Local":
+    #     return ExampleService(OllamaExampleProvider())
+    # if provider_name == "OpenAI API":
+    #     return ExampleService(OpenAIExampleProvider())
     return ExampleService(LocalTemplateExampleProvider())
 
 
@@ -112,8 +112,10 @@ def show_flashcard_ui():
 
     provider_name = st.selectbox(
         "Example generator",
-        options=["Local Template", "Ollama Local", "OpenAI API"],
-        index=1,
+        # options=["Local Template", "Ollama Local", "OpenAI API"],
+        # index=1,
+        options=["Local Template"],
+        index=0,
         help="Use Local Template for offline examples or OpenAI API for fresh AI-generated examples.",
     )
 
