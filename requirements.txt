@@ -9,3 +9,5 @@ python-multipart
 requests
 openai
 pydantic
+boto3
+python-dotenv
