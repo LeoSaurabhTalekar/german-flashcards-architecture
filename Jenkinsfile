@@ -62,12 +62,12 @@ pipeline {
             steps {
                 sshagent(credentials: ['app-ec2-ssh-key']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@${APP_EC2_HOST} '
-                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY} &&
-                            docker pull ${IMAGE_URI}:latest &&
-                            docker stop ${APP_CONTAINER_NAME} || true &&
-                            docker rm ${APP_CONTAINER_NAME} || true &&
-                            docker run -d --name ${APP_CONTAINER_NAME} --env-file /home/ubuntu/.env -p 8501:8501 ${IMAGE_URI}:latest
+                        ssh -o StrictHostKeyChecking=no ubuntu@51.20.57.216 '
+                            aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin 161327178777.dkr.ecr.eu-north-1.amazonaws.com &&
+                            docker pull 161327178777.dkr.ecr.eu-north-1.amazonaws.com/german-flashcards-app:latest &&
+                            docker stop german-flashcards-app || true &&
+                            docker rm german-flashcards-app || true &&
+                            docker run -d --name german-flashcards-app -p 8501:8501 161327178777.dkr.ecr.eu-north-1.amazonaws.com/german-flashcards-app:latest
                         '
                     '''
                 }
