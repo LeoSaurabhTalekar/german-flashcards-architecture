@@ -5,6 +5,13 @@ pipeline {
         githubPush()
     }
 
+    options {
+        disableConcurrentBuilds()
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        skipDefaultCheckout(true)
+    }
+
     environment {
         AWS_REGION = 'eu-north-1'
         AWS_ACCOUNT_ID = '161327178777'
@@ -33,6 +40,9 @@ pipeline {
         }
 
         stage('Run tests') {
+            options {
+                timeout(time: 10, unit: 'MINUTES')
+            }
             steps {
                 sh '''
                     docker run --rm \
@@ -42,7 +52,7 @@ pipeline {
                       sh -c "
                         pip install --no-cache-dir -r requirements.txt &&
                         pip install --no-cache-dir pytest &&
-                        pytest -q
+                        python -m pytest -q
                       "
                 '''
             }
@@ -84,30 +94,37 @@ pipeline {
         }
 
         stage('Deploy to App EC2') {
+            options {
+                timeout(time: 10, unit: 'MINUTES')
+            }
             steps {
                 sshagent(credentials: ['app-ec2-ssh-key']) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ${APP_EC2_USER}@${APP_EC2_HOST} '
-                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY} &&
-                            docker pull ${IMAGE_URI}:${IMAGE_TAG} &&
-                            docker stop ${APP_CONTAINER_NAME} || true &&
-                            docker rm ${APP_CONTAINER_NAME} || true &&
-                            docker run -d --name ${APP_CONTAINER_NAME} -p 8501:8501 ${IMAGE_URI}:${IMAGE_TAG}
-                        '
-                    '''
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${APP_EC2_USER}@${APP_EC2_HOST} "
+                            set -e
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                            docker pull ${IMAGE_URI}:${IMAGE_TAG}
+                            docker stop ${APP_CONTAINER_NAME} || true
+                            docker rm ${APP_CONTAINER_NAME} || true
+                            docker run -d --restart unless-stopped --name ${APP_CONTAINER_NAME} -p 8501:8501 ${IMAGE_URI}:${IMAGE_TAG}
+                        "
+                    """
                 }
             }
         }
 
         stage('Health check') {
+            options {
+                timeout(time: 5, unit: 'MINUTES')
+            }
             steps {
                 sshagent(credentials: ['app-ec2-ssh-key']) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ${APP_EC2_USER}@${APP_EC2_HOST} '
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${APP_EC2_USER}@${APP_EC2_HOST} "
                             sleep 10
                             curl -f http://localhost:8501/ > /dev/null
-                        '
-                    '''
+                        "
+                    """
                 }
             }
         }
@@ -115,10 +132,15 @@ pipeline {
 
     post {
         success {
-            echo "Build, test, push, and deployment completed successfully."
+            echo 'Build, test, push, and deployment completed successfully.'
         }
         failure {
-            echo "Pipeline failed."
+            echo 'Pipeline failed.'
+        }
+        always {
+            sh 'docker container prune -f || true'
+            sh 'docker image prune -af || true'
+            sh 'docker builder prune -af || true'
         }
     }
 }
