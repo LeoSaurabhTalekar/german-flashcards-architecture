@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+streamlit
+pandas
+openpyxl
+sqlalchemy
+pytest
+python-multipart
+requests
+openai
+pydantic
+boto3
+python-dotenv
