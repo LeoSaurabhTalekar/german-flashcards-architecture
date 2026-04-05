@@ -5,7 +5,7 @@ pipeline {
         AWS_REGION = 'eu-north-1'
         AWS_ACCOUNT_ID = '161327178777'
         ECR_REPOSITORY = 'german-flashcards-app'
-        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        ECR_REGISTRY = "161327178777.dkr.ecr.eu-north-1.amazonaws.com"
         IMAGE_URI = "${ECR_REGISTRY}/${ECR_REPOSITORY}"
     }
 
