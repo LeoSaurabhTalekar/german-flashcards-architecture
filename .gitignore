@@ -1,8 +1,40 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Virtual environments
 .venv/
-.idea/
+venv/
+env/
+
+# Testing
 .pytest_cache/
-.streamlit/
+.coverage
+htmlcov/
+
+# Environment variables / secrets
 .env
-german-flashcards-app.tar
+.env.*
+
+# IDE / editor
+.idea/
+.vscode/
+
+# OS-generated files
+.DS_Store
+desktop.ini
+Thumbs.db
+
+# Streamlit
+.streamlit/
+
+# Build / package artifacts
+dist/
+build/
+*.egg-info/
+*.tar
+*.tar.gz
+
+# Logs
+*.log
